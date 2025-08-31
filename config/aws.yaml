@@ -1,0 +1,215 @@
+# AWS Configuration for Finance Tracker
+#
+# This file contains AWS service configurations for the event-driven
+# data pipeline including EventBridge, Lambda, S3, and IAM settings.
+
+# AWS Account Configuration
+aws_account:
+  account_id: "783085491860"
+  region: "us-east-1"  # Primary region for resources
+  profile: "default"   # AWS CLI profile to use
+
+# S3 Configuration for data storage
+s3:
+  # Main data bucket for treasury and repo market data
+  data_bucket: "finance-tracker-data-783085491860"
+  
+  # Bucket for audit logs and compliance data
+  audit_bucket: "finance-tracker-audit-783085491860"
+  
+  # Bucket for temporary processing and staging
+  staging_bucket: "finance-tracker-staging-783085491860"
+  
+  # Data partitioning configuration
+  partitioning:
+    # Partition by date: year=2024/month=01/day=15/
+    date_format: "year=%Y/month=%m/day=%d"
+    
+    # Partition by data type: treasury/, repo/, scores/
+    data_types:
+      - "treasury"
+      - "repo" 
+      - "scores"
+      - "raw"
+  
+  # S3 storage configuration
+  storage_class: "STANDARD"  # STANDARD, INTELLIGENT_TIERING, GLACIER
+  encryption: "AES256"       # Server-side encryption
+  versioning: true           # Enable versioning for audit trail
+  
+  # Lifecycle policies
+  lifecycle:
+    transition_to_ia_days: 30      # Move to Infrequent Access after 30 days
+    transition_to_glacier_days: 90  # Move to Glacier after 90 days
+    delete_after_days: 2555        # Delete after 7 years (compliance)
+
+# EventBridge Configuration for event-driven architecture
+eventbridge:
+  # Custom event bus for finance data events
+  event_bus_name: "finance-tracker-events"
+  
+  # Event rules and patterns
+  rules:
+    # Treasury data update events
+    treasury_data_rule:
+      name: "treasury-data-updates"
+      description: "Triggers when treasury market data is updated"
+      event_pattern:
+        source: ["finance.treasury"]
+        detail-type: ["Treasury Data Update"]
+      
+    # Repo data update events  
+    repo_data_rule:
+      name: "repo-data-updates"
+      description: "Triggers when repo market data is updated"
+      event_pattern:
+        source: ["finance.repo"]
+        detail-type: ["Repo Data Update"]
+        
+    # Scoring calculation events
+    scoring_rule:
+      name: "scoring-calculations"
+      description: "Triggers scoring calculations after data updates"
+      event_pattern:
+        source: ["finance.treasury", "finance.repo"]
+        detail-type: ["Treasury Data Update", "Repo Data Update"]
+
+# Lambda Configuration for data processing
+lambda:
+  # Runtime configuration
+  runtime: "python3.11"
+  timeout: 300  # 5 minutes
+  memory_size: 512  # MB
+  
+  # Functions configuration
+  functions:
+    # Treasury data fetcher
+    treasury_fetcher:
+      name: "finance-tracker-treasury-fetcher"
+      description: "Fetches treasury market data from external APIs"
+      handler: "src.pipeline.treasury_fetcher.lambda_handler"
+      environment:
+        LOG_LEVEL: "INFO"
+        S3_BUCKET: "finance-tracker-data-783085491860"
+        
+    # Repo data fetcher
+    repo_fetcher:
+      name: "finance-tracker-repo-fetcher" 
+      description: "Fetches repo market data from external APIs"
+      handler: "src.pipeline.repo_fetcher.lambda_handler"
+      environment:
+        LOG_LEVEL: "INFO"
+        S3_BUCKET: "finance-tracker-data-783085491860"
+        
+    # Score calculator
+    score_calculator:
+      name: "finance-tracker-score-calculator"
+      description: "Calculates composite scores from market data"
+      handler: "src.pipeline.score_processor.lambda_handler"
+      environment:
+        LOG_LEVEL: "INFO"
+        S3_BUCKET: "finance-tracker-data-783085491860"
+        CONFIG_S3_KEY: "config/scoring.yaml"
+        
+    # Data validator
+    data_validator:
+      name: "finance-tracker-data-validator"
+      description: "Validates data quality and completeness"
+      handler: "src.pipeline.data_validator.lambda_handler"
+      environment:
+        LOG_LEVEL: "INFO"
+        S3_BUCKET: "finance-tracker-data-783085491860"
+
+# IAM Configuration for security and permissions
+iam:
+  # Lambda execution role
+  lambda_role:
+    name: "finance-tracker-lambda-role"
+    description: "Execution role for Finance Tracker Lambda functions"
+    
+    # Managed policies to attach
+    managed_policies:
+      - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      - "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+    
+    # Inline policies for specific permissions
+    inline_policies:
+      s3_access:
+        name: "S3DataAccess"
+        permissions:
+          - "s3:GetObject"
+          - "s3:PutObject"
+          - "s3:DeleteObject"
+          - "s3:ListBucket"
+        resources:
+          - "arn:aws:s3:::finance-tracker-*"
+          - "arn:aws:s3:::finance-tracker-*/*"
+          
+      eventbridge_access:
+        name: "EventBridgeAccess"
+        permissions:
+          - "events:PutEvents"
+          - "events:DescribeRule"
+        resources:
+          - "arn:aws:events:us-east-1:783085491860:event-bus/finance-tracker-events"
+          - "arn:aws:events:us-east-1:783085491860:rule/*"
+
+# CloudWatch Configuration for monitoring
+cloudwatch:
+  # Log groups
+  log_groups:
+    retention_days: 30  # Keep logs for 30 days
+    
+  # Metrics and alarms
+  alarms:
+    # Lambda function errors
+    lambda_errors:
+      threshold: 5  # Alert after 5 errors in 5 minutes
+      period: 300   # 5 minutes
+      
+    # Data processing delays
+    processing_delay:
+      threshold: 3600  # Alert if data is more than 1 hour old
+      
+  # Dashboards
+  dashboards:
+    - "FinanceTrackerOverview"
+    - "DataQualityMetrics"
+    - "PerformanceMetrics"
+
+# External API Configuration
+external_apis:
+  # Treasury data sources
+  treasury_apis:
+    primary:
+      name: "TreasuryDirect"
+      base_url: "https://api.fiscaldata.treasury.gov/services/api/v1"
+      rate_limit: 1000  # Requests per hour
+      
+    secondary:
+      name: "FRED"
+      base_url: "https://api.stlouisfed.org/fred"
+      rate_limit: 12000  # Requests per day
+      
+  # Repo data sources  
+  repo_apis:
+    primary:
+      name: "DTCC"
+      # Configuration would be added based on actual API access
+      rate_limit: 100
+      
+# Security Configuration
+security:
+  # Encryption settings
+  encryption:
+    s3_kms_key_id: "alias/finance-tracker-s3"
+    lambda_kms_key_id: "alias/finance-tracker-lambda"
+    
+  # VPC settings (if required)
+  vpc:
+    enabled: false  # Set to true if functions need VPC access
+    
+  # Secrets management
+  secrets:
+    api_keys_secret: "finance-tracker/api-keys"
+    db_credentials_secret: "finance-tracker/database"

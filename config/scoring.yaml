@@ -1,0 +1,84 @@
+# Scoring Configuration for Finance Tracker
+# 
+# This file defines the weights and parameters used by the internal
+# scoring algorithms to evaluate treasury securities and repo opportunities.
+# 
+# Weights should sum to 1.0 for proper normalization. The system will
+# automatically normalize weights if they don't sum to exactly 1.0.
+
+scoring_weights:
+  # Repo spread signal weight (0.0-1.0)
+  # Higher values give more importance to repo financing advantages
+  # Typical range: 0.3-0.5 for repo-focused strategies
+  repo_spread_weight: 0.40
+  
+  # BVAL vs internal price divergence weight (0.0-1.0) 
+  # Higher values emphasize mispricing identification
+  # Typical range: 0.2-0.4 for relative value strategies
+  bval_divergence_weight: 0.30
+  
+  # Trading volume/liquidity weight (0.0-1.0)
+  # Higher values favor liquid securities for easier execution
+  # Typical range: 0.1-0.3 depending on portfolio size
+  volume_weight: 0.20
+  
+  # Price volatility/stability weight (0.0-1.0)
+  # Higher values favor stable, predictable securities
+  # Typical range: 0.05-0.2 for risk management
+  volatility_weight: 0.10
+  
+  # Analysis parameters
+  lookback_days: 30  # Days of historical data for trend analysis
+  
+  # Signal thresholds for classification
+  significant_spread_threshold: 5.0   # Basis points for significant repo spreads
+  significant_divergence_threshold: 0.25  # Price points for significant BVAL divergence
+
+# Risk management parameters
+risk_parameters:
+  # Maximum position concentration by CUSIP (%)
+  max_single_position: 10.0
+  
+  # Maximum sector concentration (%)
+  max_sector_concentration: 25.0
+  
+  # Minimum liquidity threshold for position entry
+  min_daily_volume: 100000  # $100K minimum daily volume
+  
+  # Volatility limits
+  max_price_volatility: 0.05  # 5% maximum coefficient of variation
+
+# Data quality requirements
+data_quality:
+  # Minimum data freshness (hours)
+  max_data_age_hours: 4
+  
+  # Minimum number of price observations for volatility calculation
+  min_price_observations: 5
+  
+  # Required data completeness for high-confidence scoring (%)
+  min_data_completeness: 80
+
+# Alert thresholds
+alerts:
+  # Score thresholds for automated alerts
+  high_opportunity_threshold: 80    # Alert for scores above this level
+  risk_warning_threshold: 20        # Alert for scores below this level
+  
+  # Market condition alerts
+  extreme_spread_threshold: 20.0    # Basis points for extreme repo spreads
+  extreme_divergence_threshold: 1.0 # Price points for extreme BVAL divergence
+
+# Performance tracking
+performance:
+  # Benchmark indices for performance comparison
+  benchmark_cusips:
+    - "912828XG8"  # 10Y Treasury Note
+    - "912828YK0"  # 2Y Treasury Note
+    - "912810RZ3"  # 30Y Treasury Bond
+  
+  # Rebalancing frequency
+  rebalance_frequency_days: 7
+  
+  # Performance measurement period
+  performance_window_days: 90
