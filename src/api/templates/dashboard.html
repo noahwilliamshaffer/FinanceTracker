@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Finance Tracker{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-speedometer2"></i>
+        Finance Tracker Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshDashboard()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metrics Row -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card metric-card bg-primary text-white">
+            <div class="card-body">
+                <div class="metric-value" id="totalSecurities">-</div>
+                <div class="metric-label">Active Securities</div>
+                <i class="bi bi-graph-up position-absolute top-0 end-0 m-3" style="font-size: 2rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card metric-card bg-success text-white">
+            <div class="card-body">
+                <div class="metric-value" id="avgScore">-</div>
+                <div class="metric-label">Avg Composite Score</div>
+                <i class="bi bi-trophy position-absolute top-0 end-0 m-3" style="font-size: 2rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card metric-card bg-warning text-white">
+            <div class="card-body">
+                <div class="metric-value" id="avgSpread">-</div>
+                <div class="metric-label">Avg Repo Spread (bps)</div>
+                <i class="bi bi-bar-chart position-absolute top-0 end-0 m-3" style="font-size: 2rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card metric-card bg-info text-white">
+            <div class="card-body">
+                <div class="metric-value" id="dataFreshness">-</div>
+                <div class="metric-label">Data Freshness</div>
+                <i class="bi bi-clock position-absolute top-0 end-0 m-3" style="font-size: 2rem; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mt-4">
+    <!-- Treasury Price Overview -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-graph-up"></i>
+                Treasury Price Overview
+                <div class="float-end">
+                    <a href="/dashboard/treasury" class="btn btn-sm btn-outline-primary">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="treasuryOverviewChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Repo Spreads Overview -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-bar-chart"></i>
+                Repo Spreads Overview
+                <div class="float-end">
+                    <a href="/dashboard/repo" class="btn btn-sm btn-outline-success">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="repoOverviewChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Score Distribution and Top Opportunities -->
+<div class="row mt-4">
+    <!-- Score Distribution -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-trophy"></i>
+                Composite Score Distribution
+                <div class="float-end">
+                    <a href="/dashboard/scoring" class="btn btn-sm btn-outline-warning">
+                        View Details <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="scoreDistributionChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Opportunities -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-star"></i>
+                Top Opportunities
+            </div>
+            <div class="card-body">
+                <div id="topOpportunities" class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-activity"></i>
+                Recent Data Updates
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Data Type</th>
+                                <th>Records Processed</th>
+                                <th>Status</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentActivity">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Dashboard initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDashboardData();
+        loadCharts();
+        
+        // Refresh data every 5 minutes
+        setInterval(refreshDashboard, 5 * 60 * 1000);
+    });
+    
+    async function loadDashboardData() {
+        try {
+            // Load key metrics
+            await loadKeyMetrics();
+            
+            // Load top opportunities
+            await loadTopOpportunities();
+            
+            // Load recent activity
+            await loadRecentActivity();
+            
+        } catch (error) {
+            console.error('Error loading dashboard data:', error);
+        }
+    }
+    
+    async function loadKeyMetrics() {
+        try {
+            // Get treasury securities count
+            const securitiesResponse = await fetch('/api/treasury/securities');
+            const securities = await response.json();
+            document.getElementById('totalSecurities').textContent = securities.length;
+            
+            // Get average score
+            const scoresResponse = await fetch('/api/scoring/scores?limit=1000');
+            const scores = await scoresResponse.json();
+            
+            if (scores.length > 0) {
+                const avgScore = scores.reduce((sum, score) => sum + (score.composite_score || 0), 0) / scores.length;
+                document.getElementById('avgScore').textContent = avgScore.toFixed(1);
+            }
+            
+            // Get average repo spread
+            const spreadsResponse = await fetch('/api/repo/spreads?limit=1000');
+            const spreads = await spreadsResponse.json();
+            
+            if (spreads.length > 0) {
+                const avgSpread = spreads.reduce((sum, spread) => sum + (spread.spread_bps || 0), 0) / spreads.length;
+                document.getElementById('avgSpread').textContent = avgSpread.toFixed(1);
+            }
+            
+            // Data freshness (simulated)
+            document.getElementById('dataFreshness').textContent = '< 1h';
+            
+        } catch (error) {
+            console.error('Error loading key metrics:', error);
+        }
+    }
+    
+    async function loadCharts() {
+        // Load treasury overview chart
+        loadChart('/dashboard/charts/treasury-prices/912828XG8', 'treasuryOverviewChart');
+        
+        // Load repo overview chart
+        loadChart('/dashboard/charts/repo-spreads?cusips=912828XG8,912828YK0', 'repoOverviewChart');
+        
+        // Load score distribution chart (would need new endpoint)
+        // For now, create a simple placeholder
+        createScoreDistributionChart();
+    }
+    
+    function createScoreDistributionChart() {
+        // Generate sample score distribution data
+        const scores = [];
+        for (let i = 0; i < 100; i++) {
+            scores.push(Math.random() * 100);
+        }
+        
+        const trace = {
+            x: scores,
+            type: 'histogram',
+            nbinsx: 20,
+            marker: {
+                color: 'rgba(31, 119, 180, 0.7)',
+                line: {
+                    color: 'rgba(31, 119, 180, 1)',
+                    width: 1
+                }
+            }
+        };
+        
+        const layout = {
+            title: 'Composite Score Distribution',
+            xaxis: { title: 'Score' },
+            yaxis: { title: 'Frequency' },
+            margin: { l: 50, r: 30, t: 50, b: 50 }
+        };
+        
+        Plotly.newPlot('scoreDistributionChart', [trace], layout, { responsive: true });
+    }
+    
+    async function loadTopOpportunities() {
+        try {
+            const response = await fetch('/api/scoring/scores?min_score=80&limit=5');
+            const topScores = await response.json();
+            
+            const container = document.getElementById('topOpportunities');
+            
+            if (topScores.length === 0) {
+                container.innerHTML = '<p class="text-muted">No high-score opportunities found.</p>';
+                return;
+            }
+            
+            let html = '<div class="list-group list-group-flush">';
+            
+            topScores.forEach(score => {
+                const scoreClass = score.composite_score >= 90 ? 'success' : 
+                                 score.composite_score >= 80 ? 'warning' : 'secondary';
+                
+                html += `
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>${score.cusip}</strong>
+                            <br>
+                            <small class="text-muted">
+                                Risk: ${getScoreCategory(score.composite_score)}
+                            </small>
+                        </div>
+                        <span class="badge bg-${scoreClass} rounded-pill">
+                            ${score.composite_score?.toFixed(1) || 'N/A'}
+                        </span>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Error loading top opportunities:', error);
+            document.getElementById('topOpportunities').innerHTML = 
+                '<p class="text-danger">Error loading opportunities</p>';
+        }
+    }
+    
+    function getScoreCategory(score) {
+        if (score >= 80) return 'High Opportunity';
+        if (score >= 60) return 'Medium Opportunity';
+        if (score >= 40) return 'Low Opportunity';
+        return 'Avoid';
+    }
+    
+    async function loadRecentActivity() {
+        // Simulate recent activity data
+        const activities = [
+            {
+                timestamp: new Date(Date.now() - 30 * 60000).toISOString(),
+                dataType: 'Treasury Prices',
+                recordsProcessed: 156,
+                status: 'Success',
+                source: 'Treasury Direct API'
+            },
+            {
+                timestamp: new Date(Date.now() - 45 * 60000).toISOString(),
+                dataType: 'Repo Spreads',
+                recordsProcessed: 89,
+                status: 'Success',
+                source: 'DTCC API'
+            },
+            {
+                timestamp: new Date(Date.now() - 60 * 60000).toISOString(),
+                dataType: 'Composite Scores',
+                recordsProcessed: 245,
+                status: 'Success',
+                source: 'Internal Calculation'
+            },
+            {
+                timestamp: new Date(Date.now() - 90 * 60000).toISOString(),
+                dataType: 'Treasury Prices',
+                recordsProcessed: 142,
+                status: 'Partial',
+                source: 'FRED API'
+            }
+        ];
+        
+        const tbody = document.getElementById('recentActivity');
+        let html = '';
+        
+        activities.forEach(activity => {
+            const statusClass = activity.status === 'Success' ? 'success' : 
+                               activity.status === 'Partial' ? 'warning' : 'danger';
+            
+            const timestamp = new Date(activity.timestamp);
+            const timeAgo = Math.floor((Date.now() - timestamp.getTime()) / 60000);
+            
+            html += `
+                <tr>
+                    <td>${timeAgo}m ago</td>
+                    <td>${activity.dataType}</td>
+                    <td>${activity.recordsProcessed.toLocaleString()}</td>
+                    <td>
+                        <span class="badge bg-${statusClass}">
+                            ${activity.status}
+                        </span>
+                    </td>
+                    <td>${activity.source}</td>
+                </tr>
+            `;
+        });
+        
+        tbody.innerHTML = html;
+    }
+    
+    function refreshDashboard() {
+        console.log('Refreshing dashboard data...');
+        loadDashboardData();
+        loadCharts();
+    }
+</script>
+{% endblock %}

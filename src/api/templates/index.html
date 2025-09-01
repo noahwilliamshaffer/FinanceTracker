@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Finance Tracker - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">Finance Tracker</h1>
+            <p class="lead">
+                Event-driven finance data pipeline for Treasury and repo market data processing, 
+                visualization, and scoring with production-ready infrastructure.
+            </p>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.3);">
+            <p>
+                Built with AWS EventBridge, Lambda, S3, FastAPI, and interactive Plotly dashboards 
+                for comprehensive financial market analysis.
+            </p>
+            <a class="btn btn-light btn-lg" href="/dashboard/" role="button">
+                <i class="bi bi-speedometer2"></i> View Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-cloud-arrow-down"></i>
+                Event-Driven Pipeline
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Real-time Data Processing</h5>
+                <p class="card-text">
+                    AWS EventBridge triggers Lambda functions to fetch and update Treasury and repo 
+                    market data with automatic scaling and fault tolerance.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success"></i> CUSIP-based data organization</li>
+                    <li><i class="bi bi-check-circle text-success"></i> BVAL and internal pricing</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Day-over-day change tracking</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Audit-ready practices</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-bar-chart-line"></i>
+                Interactive Visualizations
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Professional Dashboards</h5>
+                <p class="card-text">
+                    Transform raw Treasury quotes, repo spreads, and valuation data into clear, 
+                    interactive dashboards with Plotly and Matplotlib.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success"></i> Time-series Treasury prices</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Repo spread trend analysis</li>
+                    <li><i class="bi bi-check-circle text-success"></i> BVAL vs internal divergence</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Interactive filtering</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="bi bi-trophy"></i>
+                Internal Scoring Models
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Market Signal Analysis</h5>
+                <p class="card-text">
+                    Sophisticated scoring algorithms that weight market signals including repo spreads, 
+                    pricing divergences, volume, and volatility metrics.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success"></i> Configurable YAML weights</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Composite score calculation</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Risk categorization</li>
+                    <li><i class="bi bi-check-circle text-success"></i> Confidence scoring</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Architecture Overview -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-diagram-3"></i>
+                System Architecture
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Data Pipeline</h5>
+                        <ul>
+                            <li><strong>EventBridge:</strong> Event-driven architecture for real-time processing</li>
+                            <li><strong>Lambda Functions:</strong> Serverless data fetching and processing</li>
+                            <li><strong>S3 Storage:</strong> Partitioned CSVs with versioning and encryption</li>
+                            <li><strong>Data Sources:</strong> Treasury Direct, FRED, BVAL, internal models</li>
+                        </ul>
+                        
+                        <h5 class="mt-4">Infrastructure</h5>
+                        <ul>
+                            <li><strong>Terraform:</strong> Infrastructure as Code for AWS resources</li>
+                            <li><strong>IAM Roles:</strong> Least-privilege access policies</li>
+                            <li><strong>CloudWatch:</strong> Monitoring, logging, and alerting</li>
+                            <li><strong>GitHub Actions:</strong> CI/CD pipeline with automated testing</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>Data Models</h5>
+                        <ul>
+                            <li><strong>Treasury Data:</strong> CUSIP, maturity, coupon, pricing data</li>
+                            <li><strong>Repo Data:</strong> Spread analysis across multiple terms</li>
+                            <li><strong>Score Data:</strong> Composite scores with confidence metrics</li>
+                            <li><strong>Validation:</strong> Pydantic models with comprehensive validation</li>
+                        </ul>
+                        
+                        <h5 class="mt-4">Compliance Features</h5>
+                        <ul>
+                            <li><strong>Audit Trails:</strong> Immutable logs with row count manifests</li>
+                            <li><strong>Data Versioning:</strong> S3 versioning for historical tracking</li>
+                            <li><strong>Encryption:</strong> Server-side encryption at rest</li>
+                            <li><strong>Lifecycle Policies:</strong> Automated data archiving</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="metric-value text-primary">5+</div>
+            <div class="metric-label">Data Sources</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="metric-value text-success">24/7</div>
+            <div class="metric-label">Monitoring</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="metric-value text-info">100%</div>
+            <div class="metric-label">Infrastructure as Code</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card metric-card">
+            <div class="metric-value text-warning">4</div>
+            <div class="metric-label">Scoring Signals</div>
+        </div>
+    </div>
+</div>
+
+<!-- Getting Started -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-play-circle"></i>
+                Getting Started
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Explore the Data</h5>
+                        <p>Navigate to the different dashboard sections to explore:</p>
+                        <div class="d-grid gap-2">
+                            <a href="/dashboard/treasury" class="btn btn-outline-primary">
+                                <i class="bi bi-graph-up"></i> Treasury Price Analysis
+                            </a>
+                            <a href="/dashboard/repo" class="btn btn-outline-success">
+                                <i class="bi bi-bar-chart"></i> Repo Spread Trends
+                            </a>
+                            <a href="/dashboard/scoring" class="btn btn-outline-warning">
+                                <i class="bi bi-trophy"></i> Scoring Analysis
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h5>API Access</h5>
+                        <p>Access data programmatically through our REST API:</p>
+                        <div class="d-grid gap-2">
+                            <a href="/docs" target="_blank" class="btn btn-outline-info">
+                                <i class="bi bi-book"></i> Interactive API Documentation
+                            </a>
+                            <a href="/api/treasury/prices" target="_blank" class="btn btn-outline-secondary">
+                                <i class="bi bi-code"></i> Treasury Prices Endpoint
+                            </a>
+                            <a href="/health" target="_blank" class="btn btn-outline-dark">
+                                <i class="bi bi-heart-pulse"></i> System Health Check
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Add any home page specific JavaScript here
+    console.log('Finance Tracker - Event-driven finance data pipeline loaded');
+</script>
+{% endblock %}
