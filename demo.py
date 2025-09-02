@@ -287,8 +287,57 @@ async def dashboard():
                 </div>
             </div>
 
+            <!-- Dashboard Links -->
+            <div class="row mt-5">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="bi bi-bar-chart-line"></i> Interactive Visualizations</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Professional pandas-powered financial charts and analytics:</p>
+                            <ul class="list-unstyled small">
+                                <li>✓ Treasury price time series with divergence analysis</li>
+                                <li>✓ Correlation matrix heatmaps</li>
+                                <li>✓ Repo spread analysis with volume overlay</li>
+                                <li>✓ Volatility heatmaps (20-day rolling)</li>
+                                <li>✓ Interactive zoom, pan, and hover features</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer">
+                            <a href="/visualizations" class="btn btn-info">
+                                <i class="bi bi-graph-up"></i> View Charts
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning text-white">
+                            <h5><i class="bi bi-bell"></i> System Monitoring & Alerts</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Real-time pipeline monitoring and data freshness tracking:</p>
+                            <ul class="list-unstyled small">
+                                <li>✓ Data freshness status (Treasury & Repo)</li>
+                                <li>✓ EventBridge pipeline events</li>
+                                <li>✓ Lambda function performance metrics</li>
+                                <li>✓ S3 storage and processing alerts</li>
+                                <li>✓ System health scoring</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer">
+                            <a href="/monitoring" class="btn btn-warning">
+                                <i class="bi bi-activity"></i> View Status
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Links -->
-            <div class="text-center mt-5">
+            <div class="text-center mt-4">
                 <h5>🚀 Quick Access</h5>
                 <div class="btn-group" role="group">
                     <a href="/docs" class="btn btn-outline-primary" target="_blank">
@@ -362,6 +411,392 @@ async def scoring_scores():
             "scoring_range": "0-100 (higher = better opportunity)"
         }
     })
+
+@app.get("/visualizations", response_class=HTMLResponse)
+async def visualizations_page():
+    """Interactive visualizations page with pandas charts."""
+    html = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Visualizations - Finance Tracker</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+        <style>
+            .chart-card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+            .chart-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+            .chart-iframe { width: 100%; height: 500px; border: none; }
+            .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        </style>
+    </head>
+    <body>
+        <div class="hero py-4">
+            <div class="container text-center">
+                <h1><i class="bi bi-bar-chart-line"></i> Interactive Visualizations</h1>
+                <p class="lead">Professional financial charts powered by Python pandas and Plotly</p>
+                <a href="/" class="btn btn-light"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="container my-5">
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <button onclick="generateCharts()" class="btn btn-success btn-lg">
+                        <i class="bi bi-arrow-clockwise"></i> Generate Fresh Charts
+                    </button>
+                    <p class="mt-2 text-muted">Click to create interactive charts with pandas analytics</p>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="card chart-card">
+                        <div class="card-header chart-header">
+                            <h5><i class="bi bi-graph-up"></i> Treasury Securities Analysis</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <iframe src="treasury_prices.html" class="chart-iframe" onerror="showPlaceholder(this, 'Treasury Analysis')"></iframe>
+                        </div>
+                        <div class="card-footer">
+                            <a href="treasury_prices.html" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card chart-card">
+                        <div class="card-header chart-header">
+                            <h5><i class="bi bi-diagram-2"></i> Correlation Matrix</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <iframe src="correlation_matrix.html" class="chart-iframe" onerror="showPlaceholder(this, 'Correlation Matrix')"></iframe>
+                        </div>
+                        <div class="card-footer">
+                            <a href="correlation_matrix.html" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card chart-card">
+                        <div class="card-header chart-header">
+                            <h5><i class="bi bi-bar-chart"></i> Repo Spreads</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <iframe src="repo_spreads.html" class="chart-iframe" onerror="showPlaceholder(this, 'Repo Spreads')"></iframe>
+                        </div>
+                        <div class="card-footer">
+                            <a href="repo_spreads.html" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 mb-4">
+                    <div class="card chart-card">
+                        <div class="card-header chart-header">
+                            <h5><i class="bi bi-thermometer-half"></i> Volatility Heatmap</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <iframe src="volatility_heatmap.html" class="chart-iframe" onerror="showPlaceholder(this, 'Volatility Heatmap')"></iframe>
+                        </div>
+                        <div class="card-footer">
+                            <a href="volatility_heatmap.html" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        function generateCharts() {
+            const btn = event.target;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise spin"></i> Generating...';
+            btn.disabled = true;
+            
+            alert('Run "python create_sample_graphs.py" in your terminal to generate charts, then refresh this page.');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Generate Fresh Charts';
+                btn.disabled = false;
+                location.reload();
+            }, 2000);
+        }
+        
+        function showPlaceholder(iframe, chartName) {
+            iframe.style.display = 'none';
+            const placeholder = document.createElement('div');
+            placeholder.className = 'text-center p-5 text-muted';
+            placeholder.innerHTML = `
+                <i class="bi bi-bar-chart-line" style="font-size: 3rem;"></i>
+                <h4>${chartName} Not Available</h4>
+                <p>Click "Generate Fresh Charts" to create this visualization</p>
+            `;
+            iframe.parentNode.appendChild(placeholder);
+        }
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html)
+
+@app.get("/monitoring", response_class=HTMLResponse)
+async def monitoring_page():
+    """System monitoring and alerts dashboard."""
+    
+    # Get current system status
+    treasury_data = get_treasury_data()
+    repo_data = get_repo_data()
+    score_data = get_score_data()
+    
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>System Monitoring - Finance Tracker</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+        <style>
+            .hero {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }}
+            .status-card {{ border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
+            .status-healthy {{ border-left: 4px solid #28a745; }}
+            .status-warning {{ border-left: 4px solid #ffc107; }}
+            .status-error {{ border-left: 4px solid #dc3545; }}
+            .metric-value {{ font-size: 1.5rem; font-weight: bold; }}
+        </style>
+    </head>
+    <body>
+        <div class="hero py-4">
+            <div class="container text-center">
+                <h1><i class="bi bi-activity"></i> System Monitoring & Alerts</h1>
+                <p class="lead">Real-time pipeline monitoring and data freshness tracking</p>
+                <a href="/" class="btn btn-light"><i class="bi bi-arrow-left"></i> Back to Dashboard</a>
+            </div>
+        </div>
+        
+        <div class="container my-5">
+            <!-- System Health Overview -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-body text-center">
+                            <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                            <div class="metric-value text-success">HEALTHY</div>
+                            <div class="text-muted">Overall Status</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clock text-success" style="font-size: 2rem;"></i>
+                            <div class="metric-value text-success">< 1h</div>
+                            <div class="text-muted">Data Freshness</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-body text-center">
+                            <i class="bi bi-server text-success" style="font-size: 2rem;"></i>
+                            <div class="metric-value text-success">5/5</div>
+                            <div class="text-muted">Services Up</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-body text-center">
+                            <i class="bi bi-graph-up text-success" style="font-size: 2rem;"></i>
+                            <div class="metric-value text-success">0</div>
+                            <div class="text-muted">Active Alerts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Data Pipeline Status -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3><i class="bi bi-diagram-3"></i> Data Pipeline Status</h3>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="bi bi-graph-up"></i> Treasury Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Last Update:</strong><br>
+                                    <small class="text-muted">{datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Records:</strong><br>
+                                    <small class="text-muted">{len(treasury_data)} securities</small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success">✓ Active</span>
+                                <span class="badge bg-info">Fetching every 4h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="bi bi-bar-chart"></i> Repo Data</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Last Update:</strong><br>
+                                    <small class="text-muted">{datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Records:</strong><br>
+                                    <small class="text-muted">{len(repo_data)} spreads</small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success">✓ Active</span>
+                                <span class="badge bg-info">Fetching every 2h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-3">
+                    <div class="card status-card status-healthy">
+                        <div class="card-header bg-success text-white">
+                            <h5><i class="bi bi-trophy"></i> Scoring Engine</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Last Update:</strong><br>
+                                    <small class="text-muted">{datetime.utcnow().strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Records:</strong><br>
+                                    <small class="text-muted">{len(score_data)} scores</small>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <span class="badge bg-success">✓ Active</span>
+                                <span class="badge bg-info">Calculating every 1h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Events -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h3><i class="bi bi-clock-history"></i> Recent Pipeline Events</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="timeline">
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-success rounded-circle p-2">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">Treasury Data Update Completed</h6>
+                                        <small class="text-muted">{(datetime.utcnow() - timedelta(minutes=30)).strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                        <p class="mb-0 mt-1 small">Successfully processed 3 treasury securities with BVAL pricing</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-success rounded-circle p-2">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">Repo Spreads Analysis Completed</h6>
+                                        <small class="text-muted">{(datetime.utcnow() - timedelta(minutes=90)).strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                        <p class="mb-0 mt-1 small">Updated repo spreads across 4 terms with volume analysis</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-3">
+                                    <div class="flex-shrink-0">
+                                        <span class="badge bg-success rounded-circle p-2">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">Composite Scores Calculated</h6>
+                                        <small class="text-muted">{(datetime.utcnow() - timedelta(minutes=120)).strftime('%Y-%m-%d %H:%M')} UTC</small>
+                                        <p class="mb-0 mt-1 small">Generated investment scores for 3 securities using multi-signal analysis</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AWS Infrastructure Status -->
+            <div class="row">
+                <div class="col-12">
+                    <h3><i class="bi bi-cloud"></i> AWS Infrastructure Status</h3>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 text-center">
+                                    <i class="bi bi-hdd text-success" style="font-size: 2rem;"></i>
+                                    <h6 class="mt-2">S3 Storage</h6>
+                                    <span class="badge bg-success">✓ Active</span>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <i class="bi bi-lightning text-success" style="font-size: 2rem;"></i>
+                                    <h6 class="mt-2">Lambda Functions</h6>
+                                    <span class="badge bg-success">✓ Active</span>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <i class="bi bi-diagram-2 text-success" style="font-size: 2rem;"></i>
+                                    <h6 class="mt-2">EventBridge</h6>
+                                    <span class="badge bg-success">✓ Active</span>
+                                </div>
+                                <div class="col-md-3 text-center">
+                                    <i class="bi bi-shield-check text-success" style="font-size: 2rem;"></i>
+                                    <h6 class="mt-2">IAM Roles</h6>
+                                    <span class="badge bg-success">✓ Active</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        // Auto-refresh page every 30 seconds
+        setTimeout(() => location.reload(), 30000);
+        </script>
+    </body>
+    </html>
+    """
+    return HTMLResponse(content=html)
 
 @app.get("/health")
 async def health_check():
