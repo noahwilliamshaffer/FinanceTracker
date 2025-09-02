@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 
 from .routes import treasury_router, repo_router, scoring_router, dashboard_router
+from .monitoring import monitoring_router
 from ..utils.s3_helper import S3DataManager
 from ..visualization.plotly_charts import PlotlyChartGenerator
 
@@ -68,6 +69,7 @@ app.state.chart_generator = chart_generator
 app.include_router(treasury_router, prefix="/api/treasury", tags=["Treasury"])
 app.include_router(repo_router, prefix="/api/repo", tags=["Repo"])
 app.include_router(scoring_router, prefix="/api/scoring", tags=["Scoring"])
+app.include_router(monitoring_router, prefix="/api/monitoring", tags=["Monitoring"])
 app.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 
 
