@@ -1,0 +1,7 @@
+# This is a placeholder file
+# Replace this with the actual screenshot of your Volatility Heatmap
+# The image should show:
+# - 20-day rolling volatility by CUSIP and date
+# - Color-coded heatmap (blue to red)
+# - Interactive tooltips with volatility percentages
+# - Professional heatmap styling
