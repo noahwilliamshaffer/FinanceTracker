@@ -235,6 +235,81 @@ async def scoring_dashboard(request: Request):
     )
 
 
+@dashboard_router.get("/visualizations", response_class=HTMLResponse)
+async def visualizations_page(request: Request):
+    """Interactive visualizations dashboard with pandas charts."""
+    return templates.TemplateResponse(
+        "visualizations.html",
+        {
+            "request": request,
+            "title": "Interactive Visualizations",
+            "active_page": "visualizations"
+        }
+    )
+
+
+@dashboard_router.post("/generate-charts")
+async def generate_charts():
+    """Generate fresh interactive charts using pandas analytics."""
+    try:
+        import subprocess
+        import os
+        
+        logger.info("Starting chart generation process")
+        
+        # Run the chart generation script
+        result = subprocess.run(
+            ["python", "create_sample_graphs.py"],
+            cwd=os.getcwd(),
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        
+        if result.returncode == 0:
+            logger.info("Charts generated successfully")
+            return JSONResponse(content={
+                "success": True,
+                "message": "Charts generated successfully",
+                "output": result.stdout,
+                "charts": [
+                    "treasury_prices.html",
+                    "repo_spreads.html", 
+                    "volatility_heatmap.html",
+                    "correlation_matrix.html"
+                ]
+            })
+        else:
+            logger.error("Chart generation failed", error=result.stderr)
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "success": False,
+                    "message": "Chart generation failed",
+                    "error": result.stderr
+                }
+            )
+            
+    except subprocess.TimeoutExpired:
+        logger.error("Chart generation timed out")
+        return JSONResponse(
+            status_code=408,
+            content={
+                "success": False,
+                "message": "Chart generation timed out after 30 seconds"
+            }
+        )
+    except Exception as e:
+        logger.error("Chart generation error", error=str(e))
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "message": f"Chart generation error: {str(e)}"
+            }
+        )
+
+
 @dashboard_router.get("/charts/treasury-prices/{cusip}")
 async def treasury_price_chart(cusip: str):
     """Generate treasury price chart for specific CUSIP."""
