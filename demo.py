@@ -5,6 +5,7 @@ No dependencies needed beyond FastAPI and uvicorn!
 
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from datetime import date, datetime, timedelta
 import json
 
@@ -14,6 +15,9 @@ app = FastAPI(
     description="Your production-ready finance data pipeline is working!",
     version="1.0.0"
 )
+
+# Mount static files to serve HTML charts
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 # Sample data generators
 def get_treasury_data():
@@ -457,10 +461,10 @@ async def visualizations_page():
                             <h5><i class="bi bi-graph-up"></i> Treasury Securities Analysis</h5>
                         </div>
                         <div class="card-body p-0">
-                            <iframe src="treasury_prices.html" class="chart-iframe" onerror="showPlaceholder(this, 'Treasury Analysis')"></iframe>
+                            <iframe src="/static/treasury_prices.html" class="chart-iframe" onerror="showPlaceholder(this, 'Treasury Analysis')"></iframe>
                         </div>
                         <div class="card-footer">
-                            <a href="treasury_prices.html" target="_blank" class="btn btn-primary btn-sm">
+                            <a href="/static/treasury_prices.html" target="_blank" class="btn btn-primary btn-sm">
                                 <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
                             </a>
                         </div>
@@ -473,10 +477,10 @@ async def visualizations_page():
                             <h5><i class="bi bi-diagram-2"></i> Correlation Matrix</h5>
                         </div>
                         <div class="card-body p-0">
-                            <iframe src="correlation_matrix.html" class="chart-iframe" onerror="showPlaceholder(this, 'Correlation Matrix')"></iframe>
+                            <iframe src="/static/correlation_matrix.html" class="chart-iframe" onerror="showPlaceholder(this, 'Correlation Matrix')"></iframe>
                         </div>
                         <div class="card-footer">
-                            <a href="correlation_matrix.html" target="_blank" class="btn btn-primary btn-sm">
+                            <a href="/static/correlation_matrix.html" target="_blank" class="btn btn-primary btn-sm">
                                 <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
                             </a>
                         </div>
@@ -489,11 +493,17 @@ async def visualizations_page():
                             <h5><i class="bi bi-bar-chart"></i> Repo Spreads</h5>
                         </div>
                         <div class="card-body p-0">
-                            <iframe src="repo_spreads.html" class="chart-iframe" onerror="showPlaceholder(this, 'Repo Spreads')"></iframe>
+                            <iframe src="/static/repo_spreads_simple.html" class="chart-iframe" onerror="showPlaceholder(this, 'Repo Spreads')"></iframe>
                         </div>
                         <div class="card-footer">
-                            <a href="repo_spreads.html" target="_blank" class="btn btn-primary btn-sm">
-                                <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
+                            <a href="/static/repo_spreads_simple.html" target="_blank" class="btn btn-primary btn-sm">
+                                <i class="bi bi-graph-up"></i> Simple View
+                            </a>
+                            <a href="/static/repo_spreads_dashboard.html" target="_blank" class="btn btn-success btn-sm">
+                                <i class="bi bi-grid-3x3-gap"></i> Full Dashboard
+                            </a>
+                            <a href="/static/repo_spreads_heatmap.html" target="_blank" class="btn btn-warning btn-sm">
+                                <i class="bi bi-thermometer-half"></i> Heatmap
                             </a>
                         </div>
                     </div>
@@ -505,10 +515,10 @@ async def visualizations_page():
                             <h5><i class="bi bi-thermometer-half"></i> Volatility Heatmap</h5>
                         </div>
                         <div class="card-body p-0">
-                            <iframe src="volatility_heatmap.html" class="chart-iframe" onerror="showPlaceholder(this, 'Volatility Heatmap')"></iframe>
+                            <iframe src="/static/volatility_heatmap.html" class="chart-iframe" onerror="showPlaceholder(this, 'Volatility Heatmap')"></iframe>
                         </div>
                         <div class="card-footer">
-                            <a href="volatility_heatmap.html" target="_blank" class="btn btn-primary btn-sm">
+                            <a href="/static/volatility_heatmap.html" target="_blank" class="btn btn-primary btn-sm">
                                 <i class="bi bi-box-arrow-up-right"></i> Open Full Chart
                             </a>
                         </div>
